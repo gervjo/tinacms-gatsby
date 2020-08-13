@@ -13,6 +13,29 @@ module.exports = {
   },
   plugins: [
     {
+      resolve: 'gatsby-plugin-tinacms',
+      options: {
+        // The CMS will be disabled on your production site
+        enabled: process.env.NODE_ENV !== 'production',
+        sidebar: true,
+        plugins: [
+          {
+            resolve: 'gatsby-tinacms-git',
+            options: {
+              pathToRepo: "https://github.com/gervjo/tinacms-gatsby.git",
+              pathToContent: '/',
+              defaultCommitMessage: 'Edited with TinaCMS',
+              defaultCommitName: 'TinaCMS',
+              defaultCommitEmail: 'git@tinacms.org',
+              pushOnCommit: false,
+            },
+          },
+          'gatsby-tinacms-remark',
+          'gatsby-tinacms-json',
+        ],
+      },
+    },
+    {
       resolve: `gatsby-source-filesystem`,
       options: {
         path: `${__dirname}/content/blog`,
