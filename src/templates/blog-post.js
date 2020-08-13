@@ -1,35 +1,16 @@
 import React from "react"
 import { Link, graphql } from "gatsby"
-import { useForm, usePlugin } from 'tinacms'
+import { useRemarkForm } from 'gatsby-tinacms-remark'
+import { usePlugin } from 'tinacms'
 
 import Bio from "../components/bio"
 import Layout from "../components/layout"
 import SEO from "../components/seo"
 import { rhythm, scale } from "../utils/typography"
 
-const BlogPostTemplate = ({ data, pageContext, location }) => {
-  const formConfig = {
-    id: data.markdownRemark.id,
-    label: "Blog Post",
-    initialValues: data.markdownRemark,
-    onSubmit: values => {
-      alert(`Submitting ${values.frontmatter.title}`)
-    },
-    fields: [
-      {
-        name: "frontmatter.title",
-        label: "Title",
-        component: "text",
-      },
-      {
-        name: "frontmatter.description",
-        label: "Description",
-        component: "textarea",
-      },
-    ],
-  };
+const BlogPostTemplate = ({ data, pageContext, location}) => {
   // Create the form
-  const [post, form] = useForm(formConfig);
+  const [markdownRemark, form] = useRemarkForm(data.markdownRemark)
   // Register it with the CMS
   usePlugin(form)
 
@@ -39,8 +20,8 @@ const BlogPostTemplate = ({ data, pageContext, location }) => {
   return (
     <Layout location={location} title={siteTitle}>
       <SEO
-        title={post.frontmatter.title}
-        description={post.frontmatter.description || post.excerpt}
+        title={data.markdownRemark.frontmatter.title}
+        description={data.markdownRemark.frontmatter.description || data.markdownRemark.excerpt}
       />
       <article>
         <header>
@@ -50,7 +31,7 @@ const BlogPostTemplate = ({ data, pageContext, location }) => {
               marginBottom: 0,
             }}
           >
-            {post.frontmatter.title}
+            {data.markdownRemark.frontmatter.title}
           </h1>
           <p
             style={{
@@ -59,10 +40,10 @@ const BlogPostTemplate = ({ data, pageContext, location }) => {
               marginBottom: rhythm(1),
             }}
           >
-            {post.frontmatter.date}
+            {data.markdownRemark.frontmatter.date}
           </p>
         </header>
-        <section dangerouslySetInnerHTML={{ __html: post.html }} />
+        <section dangerouslySetInnerHTML={{ __html: data.markdownRemark.html }} />
         <hr
           style={{
             marginBottom: rhythm(1),
@@ -116,6 +97,7 @@ export const pageQuery = graphql`
       id
       excerpt(pruneLength: 160)
       html
+      ...TinaRemark,
       frontmatter {
         title
         date(formatString: "MMMM DD, YYYY")
