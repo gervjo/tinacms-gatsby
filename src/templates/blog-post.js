@@ -1,7 +1,5 @@
 import React from "react"
 import { Link, graphql } from "gatsby"
-import { useRemarkForm } from 'gatsby-tinacms-remark'
-import { usePlugin } from 'tinacms'
 
 import Bio from "../components/bio"
 import Layout from "../components/layout"
@@ -9,19 +7,15 @@ import SEO from "../components/seo"
 import { rhythm, scale } from "../utils/typography"
 
 const BlogPostTemplate = ({ data, pageContext, location}) => {
-  // Create the form
-  const [markdownRemark, form] = useRemarkForm(data.markdownRemark)
-  // Register it with the CMS
-  usePlugin(form)
-
   const siteTitle = data.site.siteMetadata.title;
+  const post = data.allStrapiBlogPosts.edges[0].node
   const { previous, next } = pageContext;
 
   return (
     <Layout location={location} title={siteTitle}>
       <SEO
-        title={data.markdownRemark.frontmatter.title}
-        description={data.markdownRemark.frontmatter.description || data.markdownRemark.excerpt}
+        title={post.title}
+        description={post.excerpt}
       />
       <article>
         <header>
@@ -31,7 +25,7 @@ const BlogPostTemplate = ({ data, pageContext, location}) => {
               marginBottom: 0,
             }}
           >
-            {data.markdownRemark.frontmatter.title}
+            {post.title}
           </h1>
           <p
             style={{
@@ -40,10 +34,10 @@ const BlogPostTemplate = ({ data, pageContext, location}) => {
               marginBottom: rhythm(1),
             }}
           >
-            {data.markdownRemark.frontmatter.date}
+            {post.date}
           </p>
         </header>
-        <section dangerouslySetInnerHTML={{ __html: data.markdownRemark.html }} />
+        <section dangerouslySetInnerHTML={{ __html: post.content }} />
         <hr
           style={{
             marginBottom: rhythm(1),
@@ -66,15 +60,15 @@ const BlogPostTemplate = ({ data, pageContext, location}) => {
         >
           <li>
             {previous && (
-              <Link to={previous.fields.slug} rel="prev">
-                ← {previous.frontmatter.title}
+              <Link to={`/${previous.slug}`} rel="prev">
+                ← {previous.title}
               </Link>
             )}
           </li>
           <li>
             {next && (
-              <Link to={next.fields.slug} rel="next">
-                {next.frontmatter.title} →
+              <Link to={`/${next.slug}`} rel="next">
+                {next.title} →
               </Link>
             )}
           </li>
@@ -84,7 +78,7 @@ const BlogPostTemplate = ({ data, pageContext, location}) => {
   )
 }
 
-export default BlogPostTemplate
+export default BlogPostTemplate;
 
 export const pageQuery = graphql`
   query BlogPostBySlug($slug: String!) {
@@ -93,16 +87,16 @@ export const pageQuery = graphql`
         title
       }
     }
-    markdownRemark(fields: { slug: { eq: $slug } }) {
+    allStrapiBlogPosts(filter: {slug: {eq: $slug}}) {
+    edges {
+    node {
       id
-      excerpt(pruneLength: 160)
-      html
-      ...TinaRemark,
-      frontmatter {
-        title
-        date(formatString: "MMMM DD, YYYY")
-        description
-      }
+      title
+      content,
+      excerpt,
+      date
+    }
+    }
     }
   }
 `

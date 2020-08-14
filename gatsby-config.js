@@ -1,3 +1,7 @@
+require("dotenv").config({
+  path: `.env.${process.env.NODE_ENV}`,
+});
+
 module.exports = {
   siteMetadata: {
     title: `Gatsby Starter Blog`,
@@ -23,6 +27,18 @@ module.exports = {
           'gatsby-tinacms-remark',
           'gatsby-tinacms-json',
         ],
+      },
+    },
+    {
+      resolve: "gatsby-source-strapi",
+      options: {
+        apiURL: process.env.STRAPI_URL || "http://localhost:1337",
+        contentTypes: [
+          // List of the Content Types you want to be able to request from Gatsby.
+          "blog-posts",
+          "author",
+        ],
+        queryLimit: 1000,
       },
     },
     {
